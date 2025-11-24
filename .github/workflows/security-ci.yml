@@ -7,6 +7,9 @@ on:
     branches: [main]
 
 jobs:
+  # ------------------------
+  # Python Vulnerability Scan
+  # ------------------------
   vuln-scan:
     name: Python Vulnerability Scan
     runs-on: ubuntu-latest
@@ -40,24 +43,50 @@ jobs:
             safety_report.txt
             bandit_report.json
 
-  zap-scan:
-    name: OWASP ZAP Full Scan
+  # ------------------------
+  # Docker Build & Push
+  # ------------------------
+  docker-build:
+    name: Build & Push Docker Image
     runs-on: ubuntu-latest
     needs: vuln-scan
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # Pull and run your Docker container
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build Docker image
+        run: docker build -t thananchezian25/demo:latest .
+
+      - name: Push Docker image
+        run: docker push thananchezian25/demo:latest
+
+  # ------------------------
+  # OWASP ZAP Full Scan
+  # ------------------------
+  zap-scan:
+    name: OWASP ZAP Full Scan
+    runs-on: ubuntu-latest
+    needs: docker-build
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # Pull and run the Docker image
       - name: Pull and run Docker image
         run: |
           docker pull thananchezian25/demo:latest
           docker run -d -p 5000:5000 --name my-app-container thananchezian25/demo:latest
-          sleep 10  # wait for app to start
+          sleep 15  # wait for app to start
 
-      # Run OWASP ZAP scan against the container
+      # Run ZAP Full Scan
       - name: Run ZAP Full Scan
-        uses: zaproxy/action-full-scan@v0.13.0
+        uses: zaproxy/action-full-scan@v0.14.0
         with:
           target: 'http://localhost:5000'
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -70,7 +99,7 @@ jobs:
           name: zap-report
           path: zap_scan.html
 
-      # Stop and remove container
+      # Stop and remove Docker container
       - name: Stop Docker container
         run: |
           docker stop my-app-container
