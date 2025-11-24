@@ -22,35 +22,56 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install safety
+          pip install safety bandit
 
-      - name: Run vulnerability scan
+      - name: Run Safety vulnerability scan
         run: |
           safety check -r requirements.txt --full-report > safety_report.txt || true
 
-      - name: Upload safety report
+      - name: Run Bandit security scan
+        run: |
+          bandit -r . -f json -o bandit_report.json || true
+
+      - name: Upload vulnerability reports
         uses: actions/upload-artifact@v4
         with:
-          name: safety-report
-          path: safety_report.txt
+          name: vuln-reports
+          path: |
+            safety_report.txt
+            bandit_report.json
 
   zap-scan:
-    name: OWASP ZAP Scan
+    name: OWASP ZAP Full Scan
     runs-on: ubuntu-latest
     needs: vuln-scan
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      # Pull and run your Docker container
+      - name: Pull and run Docker image
+        run: |
+          docker pull your-dockerhub-username/your-image:latest
+          docker run -d -p 5000:5000 --name my-app-container your-dockerhub-username/your-image:latest
+          sleep 10  # wait for app to start
+
+      # Run OWASP ZAP scan against the container
       - name: Run ZAP Full Scan
-        uses: zaproxy/action-full-scan@v0.13.0
+        uses: zaproxy/action-full-scan@v0.14.0
         with:
-          target: 'http://your-app-url-here'
+          target: 'http://localhost:5000'
           token: ${{ secrets.GITHUB_TOKEN }}
           fail_action: 'true'
 
+      # Upload ZAP report
       - name: Upload ZAP report
         uses: actions/upload-artifact@v4
         with:
           name: zap-report
           path: zap_scan.html
+
+      # Stop and remove container
+      - name: Stop Docker container
+        run: |
+          docker stop my-app-container
+          docker rm my-app-container
