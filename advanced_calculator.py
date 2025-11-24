@@ -3,31 +3,62 @@ import math
 # Memory variable
 memory = None
 
-# Basic operations
-def add(a, b): return a + b
-def subtract(a, b): return a - b
-def multiply(a, b): return a * b
-def divide(a, b): return "Error! Division by zero." if b == 0 else a / b
-def power(a, b): return a ** b
-def square_root(a): return "Error! Negative input." if a < 0 else math.sqrt(a)
+# Basic arithmetic
+def add(a, b):
+    return a + b
 
-# Trigonometry
-def sine(deg): return math.sin(math.radians(deg))
-def cosine(deg): return math.cos(math.radians(deg))
-def tangent(deg): return math.tan(math.radians(deg))
+def subtract(a, b):
+    return a - b
 
-# Logarithm and exponential
-def logarithm(a): return "Error! Non-positive input." if a <= 0 else math.log10(a)
-def exponential(a): return math.exp(a)
+def multiply(a, b):
+    return a * b
+
+def divide(a, b):
+    if b == 0:
+        raise ValueError("Cannot divide by zero")
+    return a / b
+
+def power(a, b):
+    return a ** b
+
+def square_root(a):
+    if a < 0:
+        raise ValueError("Cannot take square root of negative number")
+    return math.sqrt(a)
 
 # Factorial
-def factorial(n): return "Error! Negative input." if n < 0 else math.factorial(n)
+def factorial(n):
+    if n < 0:
+        raise ValueError("Cannot take factorial of negative number")
+    return math.factorial(n)
+
+# Logarithm (base 10)
+def logarithm(n):
+    if n <= 0:
+        raise ValueError("Logarithm undefined for non-positive numbers")
+    return math.log10(n)
+
+# Exponential
+def exponential(n):
+    return math.exp(n)
+
+# Trigonometry (angles in degrees)
+def sine(angle):
+    return round(math.sin(math.radians(angle)), 10)
+
+def cosine(angle):
+    return round(math.cos(math.radians(angle)), 10)
+
+def tangent(angle):
+    rad = math.radians(angle)
+    if math.isclose(math.cos(rad), 0, abs_tol=1e-10):
+        raise ValueError("Tangent undefined for this angle")
+    return round(math.tan(rad), 10)
 
 # Memory functions
 def store_memory(value):
     global memory
     memory = value
-    return "Value stored"
 
 def recall_memory():
     return memory if memory is not None else "Memory empty"
@@ -35,4 +66,3 @@ def recall_memory():
 def clear_memory():
     global memory
     memory = None
-    return "Memory cleared"
