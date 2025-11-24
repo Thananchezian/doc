@@ -1,32 +1,19 @@
-name: SonarQube Scan
-
+name: Build
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "main" ]
-
+    types: [opened, synchronize, reopened]
 jobs:
-  sonarQube:
+  sonarqube:
+    name: SonarQube
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up JDK
-        uses: actions/setup-java@v4
+      - uses: actions/checkout@v4
         with:
-          distribution: 'temurin'
-          java-version: '17'
-
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@fd88b7d8de1d6b9d1c943c2f51a8a7e27df6e60f
+        uses: SonarSource/sonarqube-scan-action@v6
         env:
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          args: >
-            "-Dsonar.projectKey=my-project-key"
-            "-Dsonar.projectName=My Project"
-            "-Dsonar.sources=."
