@@ -17,6 +17,6 @@ jobs:
           fetch-depth: 0  # Better relevancy of analysis
 
       - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@4a372ccbe42d9f8ce103c297f7dbb2c2f42d1c27  # pinned SHA
+        uses: SonarSource/sonarqube-scan-action@v4  # pinned SHA
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
