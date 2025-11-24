@@ -10,7 +10,6 @@ class TestAdvancedCalculator(unittest.TestCase):
     def test_divide(self):
         self.assertEqual(divide(6,3), 2)
         self.assertEqual(divide(6,0), "Error! Division by zero.")
-
     def test_power(self): self.assertEqual(power(2,3), 8)
     def test_square_root(self):
         self.assertEqual(square_root(9), 3)
@@ -33,7 +32,7 @@ class TestAdvancedCalculator(unittest.TestCase):
         memory = 42
         self.assertEqual(recall_memory(), 42)
         self.assertEqual(clear_memory(), "Memory cleared")
-        self.assertEqual(memory, None)
+        self.assertIsNone(memory)
 
 if __name__ == "__main__":
     unittest.main()
